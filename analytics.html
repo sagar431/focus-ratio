@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Focus Ratio Analytics - Track your productivity progress over time">
+    <title>Focus Ratio | Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="analytics.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Animated Background -->
+        <div class="bg-gradient"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+
+        <!-- Header -->
+        <header class="header analytics-header">
+            <div class="header-left">
+                <a href="index.html" class="back-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <div class="logo">
+                    <span class="logo-icon">📊</span>
+                    <span class="logo-text">Analytics</span>
+                </div>
+            </div>
+            <div class="period-selector">
+                <button class="period-btn active" data-period="week">Week</button>
+                <button class="period-btn" data-period="month">Month</button>
+                <button class="period-btn" data-period="year">Year</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content analytics-content">
+
+            <!-- Summary Cards -->
+            <section class="summary-grid">
+                <div class="summary-card total-focus">
+                    <div class="summary-icon">⏱️</div>
+                    <div class="summary-data">
+                        <span class="summary-value" id="totalFocusTime">0h 0m</span>
+                        <span class="summary-label">Total Focus Time</span>
+                    </div>
+                    <div class="summary-trend up" id="focusTrend">
+                        <span>+12%</span>
+                    </div>
+                </div>
+
+                <div class="summary-card avg-productivity">
+                    <div class="summary-icon">📈</div>
+                    <div class="summary-data">
+                        <span class="summary-value" id="avgProductivity">0%</span>
+                        <span class="summary-label">Avg Productivity</span>
+                    </div>
+                    <div class="summary-trend up" id="productivityTrend">
+                        <span>+5%</span>
+                    </div>
+                </div>
+
+                <div class="summary-card total-sessions">
+                    <div class="summary-icon">🎯</div>
+                    <div class="summary-data">
+                        <span class="summary-value" id="totalSessions">0</span>
+                        <span class="summary-label">Focus Sessions</span>
+                    </div>
+                    <div class="summary-trend" id="sessionsTrend">
+                        <span>--</span>
+                    </div>
+                </div>
+
+                <div class="summary-card best-streak">
+                    <div class="summary-icon">🔥</div>
+                    <div class="summary-data">
+                        <span class="summary-value" id="bestStreak">0h 0m</span>
+                        <span class="summary-label">Best Streak</span>
+                    </div>
+                    <div class="summary-trend" id="streakTrend">
+                        <span>--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-grid">
+                <!-- Productivity Line Chart -->
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <h3>📈 Productivity Over Time</h3>
+                        <p>Daily productivity percentage</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="productivityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Focus Time Bar Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>⏱️ Focus Time</h3>
+                        <p>Hours focused per day</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="focusTimeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Heatmap Calendar -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>🗓️ Activity Heatmap</h3>
+                        <p>Daily focus intensity</p>
+                    </div>
+                    <div class="heatmap-container" id="heatmapContainer">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Time Distribution Doughnut -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>⏰ Time Distribution</h3>
+                        <p>Focus vs Away time</p>
+                    </div>
+                    <div class="chart-container doughnut-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weekly Pattern Radar -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>📅 Weekly Pattern</h3>
+                        <p>Productivity by day of week</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weeklyPatternChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monthly Comparison -->
+            <section class="monthly-comparison">
+                <div class="chart-card wide">
+                    <div class="chart-header">
+                        <h3>📊 Month-to-Month Progress</h3>
+                        <p>Compare your growth over months</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyComparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Achievements Section -->
+            <section class="achievements-section">
+                <h2 class="section-title">🏆 Achievements</h2>
+                <div class="achievements-grid" id="achievementsGrid">
+                    <!-- Generated by JS -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Focus Ratio Analytics • Track your productivity journey</p>
+        </footer>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="analytics.js"></script>
+</body>
+
+</html>

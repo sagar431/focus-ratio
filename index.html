@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Focus Ratio - A brutally honest productivity mirror that tracks your real work time vs available time">
+    <title>Focus Ratio | Productivity Mirror</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- MediaPipe Face Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Animated Background -->
+        <div class="bg-gradient"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">◉</span>
+                <span class="logo-text">Focus Ratio</span>
+            </div>
+
+            <!-- Presence Indicator - New Pill Style -->
+            <div class="presence-indicator" id="presenceIndicator">
+                <div class="presence-dot" id="presenceDot"></div>
+                <div class="presence-info">
+                    <span class="presence-status" id="presenceStatus">Detecting...</span>
+                    <span class="presence-detail" id="presenceDetail">Starting camera</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <a href="analytics.html" class="analytics-link" title="View Analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6" />
+                    </svg>
+                    <span>Analytics</span>
+                </a>
+                <button class="sound-toggle" id="soundToggle" title="Toggle sounds">
+                    🔊
+                </button>
+            </div>
+            <div class="status-badge" id="statusBadge">
+                <span class="status-dot"></span>
+                <span class="status-text">Session Active</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Productivity Score - Hero Section -->
+            <section class="productivity-section">
+                <div class="productivity-card">
+                    <div class="productivity-ring">
+                        <svg viewBox="0 0 200 200" class="progress-ring">
+                            <circle class="progress-ring-bg" cx="100" cy="100" r="85" />
+                            <circle class="progress-ring-fill" id="progressRing" cx="100" cy="100" r="85" />
+                        </svg>
+                        <div class="productivity-value">
+                            <span class="percentage" id="productivityPercent">0.00</span>
+                            <span class="percent-sign">%</span>
+                        </div>
+                    </div>
+                    <h2 class="productivity-label">Productivity Score</h2>
+                    <p class="productivity-subtitle">Focus Time ÷ Real Time</p>
+                </div>
+            </section>
+
+            <!-- Timers Grid -->
+            <section class="timers-grid">
+                <!-- Real Time Timer -->
+                <div class="timer-card real-timer">
+                    <div class="timer-header">
+                        <div class="timer-icon real-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </div>
+                        <div class="timer-info">
+                            <h3 class="timer-title">Real Time</h3>
+                            <p class="timer-desc">Total elapsed since start</p>
+                        </div>
+                        <div class="timer-status running">
+                            <span class="pulse"></span>
+                            Always Running
+                        </div>
+                    </div>
+                    <div class="timer-display">
+                        <span class="time-value" id="realTimeDisplay">00:00:00</span>
+                    </div>
+                    <div class="timer-meta">
+                        <span class="meta-label">Started</span>
+                        <span class="meta-value" id="sessionStart">--:--</span>
+                    </div>
+                </div>
+
+                <!-- Focus Timer -->
+                <div class="timer-card focus-timer">
+                    <div class="timer-header">
+                        <div class="timer-icon focus-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                            </svg>
+                        </div>
+                        <div class="timer-info">
+                            <h3 class="timer-title">Focus Time</h3>
+                            <p class="timer-desc">Your productive hours</p>
+                        </div>
+                        <div class="timer-status" id="focusStatus">
+                            Paused
+                        </div>
+                    </div>
+                    <div class="timer-display">
+                        <span class="time-value focus-value" id="focusTimeDisplay">00:00:00</span>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn btn-primary" id="startPauseBtn">
+                            <span class="btn-icon" id="btnIcon">▶</span>
+                            <span class="btn-text" id="btnText">Start Focus</span>
+                        </button>
+                        <button class="btn btn-secondary" id="resetBtn">
+                            <span class="btn-icon">↺</span>
+                            <span class="btn-text">Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Bar -->
+            <section class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value" id="focusSessions">0</span>
+                    <span class="stat-label">Focus Sessions</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="avgSession">0:00</span>
+                    <span class="stat-label">Avg Session</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="longestStreak">0:00</span>
+                    <span class="stat-label">Longest Streak</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item away-stat">
+                    <span class="stat-value" id="awayTime">0:00</span>
+                    <span class="stat-label">Away Time</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Your brutally honest productivity mirror • 📷 Face tracking • 😊 Mood • 📸 Photos • � Phone detection</p>
+        </footer>
+    </div>
+
+    <script src="sounds.js"></script>
+    <script src="database.js"></script>
+    <script src="mood-detector.js"></script>
+    <script src="photo-capture.js"></script>
+    <script src="phone-detector.js"></script>
+    <script src="webcam.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
