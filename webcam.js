@@ -158,7 +158,30 @@ class PresenceDetector {
                         console.log('✅ Camera started');
                         resolve();
                     })
-                    .catch(reject);
+                    .catch((error) => {
+                        // Provide helpful error messages
+                        let errorMessage = 'Camera access failed';
+
+                        if (error.name === 'NotReadableError') {
+                            errorMessage = 'Camera in use by another app. Close other tabs/apps using camera.';
+                        } else if (error.name === 'NotAllowedError') {
+                            errorMessage = 'Camera permission denied. Click the camera icon in address bar to allow.';
+                        } else if (error.name === 'NotFoundError') {
+                            errorMessage = 'No camera found. Connect a webcam.';
+                        } else if (error.name === 'OverconstrainedError') {
+                            errorMessage = 'Camera resolution not supported.';
+                        }
+
+                        console.error('Camera error:', error.name, error.message);
+                        this.updateUI('error', errorMessage);
+
+                        // Show a toast notification
+                        if (window.showToast) {
+                            window.showToast('📷 ' + errorMessage, 'warning');
+                        }
+
+                        reject(new Error(errorMessage));
+                    });
             } catch (error) {
                 reject(error);
             }
