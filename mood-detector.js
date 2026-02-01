@@ -17,7 +17,9 @@ class MoodDetector {
             eyeAspectRatio: 0,
             isDrowsy: false,
             isInitialized: false,
-            faceMesh: null
+            faceMesh: null,
+            drowsyDismissedAt: null,        // Track when alert was dismissed
+            drowsyCooldown: 5 * 60 * 1000   // 5 minute cooldown after dismissal
         };
 
         // Callbacks
@@ -176,6 +178,14 @@ class MoodDetector {
     }
 
     triggerDrowsinessWarning() {
+        // Check if we're in cooldown period after dismissal
+        if (this.state.drowsyDismissedAt) {
+            const timeSinceDismissal = Date.now() - this.state.drowsyDismissedAt;
+            if (timeSinceDismissal < this.state.drowsyCooldown) {
+                return; // Still in cooldown, don't show alert
+            }
+        }
+
         if (!this.state.isDrowsy) {
             this.state.isDrowsy = true;
             this.elements.drowsyAlert.classList.add('visible');
@@ -209,6 +219,7 @@ class MoodDetector {
 
     dismissDrowsyAlert() {
         this.state.isDrowsy = false;
+        this.state.drowsyDismissedAt = Date.now(); // Set cooldown timer
         this.elements.drowsyAlert.classList.remove('visible');
     }
 
