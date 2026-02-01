@@ -113,6 +113,24 @@ class ProductivityTracker {
     tick() {
         this.updateTimerDisplays();
         this.updateProductivity();
+
+        // Check for hour warrior achievement (1 hour continuous focus)
+        if (this.state.isFocusing && window.achievements) {
+            const currentStreak = this.getCurrentStreakMs();
+            if (currentStreak >= 60 * 60 * 1000) { // 1 hour
+                window.achievements.unlock('hour_warrior');
+            }
+        }
+
+        // Check for perfect day achievement
+        const productivity = this.getRealTimeMs() > 0
+            ? (this.getFocusTimeMs() / this.getRealTimeMs()) * 100
+            : 0;
+        if (productivity >= 99 && this.getRealTimeMs() > 30 * 60 * 1000) { // 99%+ after 30 mins
+            if (window.achievements) {
+                window.achievements.unlock('perfect_day');
+            }
+        }
     }
 
     getRealTimeMs() {
@@ -243,6 +261,11 @@ class ProductivityTracker {
         // Play sound effect
         if (window.sounds) {
             window.sounds.playStart();
+        }
+
+        // Unlock first focus achievement
+        if (window.achievements) {
+            window.achievements.unlock('first_focus');
         }
 
         // Add visual feedback
@@ -592,6 +615,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.tracker.elements.awayTime.textContent = window.tracker.formatShortTime(awayMs);
                 }
             }, 1000);
+
+            // Initialize Pomodoro Timer
+            if (typeof PomodoroTimer !== 'undefined') {
+                window.pomodoroTimer = new PomodoroTimer({
+                    onPomodoroComplete: (count) => {
+                        console.log(`🍅 Pomodoro #${count} completed!`);
+                        // Unlock achievement on first pomodoro
+                        if (window.achievements) {
+                            window.achievements.unlock('first_focus');
+                        }
+                    }
+                });
+                window.pomodoroTimer.init();
+                console.log('✅ Pomodoro timer initialized');
+            }
+
+            // Initialize Daily Goals
+            if (typeof DailyGoals !== 'undefined') {
+                window.dailyGoals = new DailyGoals();
+                console.log('✅ Daily goals initialized');
+            }
+
+            // Initialize Achievements
+            if (typeof Achievements !== 'undefined') {
+                window.achievements = new Achievements();
+                console.log('✅ Achievements initialized');
+            }
+
+            // Initialize Motivational Quotes
+            if (typeof MotivationalQuotes !== 'undefined') {
+                window.quotes = new MotivationalQuotes();
+                console.log('✅ Motivational quotes initialized');
+            }
+
+            // Initialize Ambient Sounds
+            if (typeof AmbientSounds !== 'undefined') {
+                window.ambientSounds = new AmbientSounds();
+                console.log('✅ Ambient sounds initialized');
+            }
+
+            // Initialize Break Reminder
+            if (typeof BreakReminder !== 'undefined') {
+                window.breakReminder = new BreakReminder();
+                console.log('✅ Break reminders initialized');
+            }
 
         } catch (error) {
             console.error('❌ Failed to initialize presence detection:', error);

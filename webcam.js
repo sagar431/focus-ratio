@@ -25,7 +25,9 @@ class PresenceDetector {
             cameraActive: false,
             initialized: false,
             faceDetector: null,
-            camera: null
+            camera: null,
+            returnDetectionCount: 0,        // Track successful detections for return
+            returnDetectionRequired: 3      // Number of detections needed to confirm return
         };
 
         // DOM Elements
@@ -203,18 +205,23 @@ class PresenceDetector {
 
             // Check if returning from away
             if (!this.state.isPresent) {
-                // Require consistent detection for returnThreshold
-                if (!this.returnCheckStart) {
-                    this.returnCheckStart = now;
-                } else if (now - this.returnCheckStart >= this.config.returnThreshold) {
+                // Use detection count for more forgiving return detection
+                this.state.returnDetectionCount++;
+
+                if (this.state.returnDetectionCount >= this.state.returnDetectionRequired) {
                     this.handleReturn();
-                    this.returnCheckStart = null;
+                    this.state.returnDetectionCount = 0;
+                } else {
+                    this.updateUI('warning', `Detecting face... (${this.state.returnDetectionCount}/${this.state.returnDetectionRequired})`);
                 }
             } else {
                 this.updateUI('present');
             }
         } else {
-            this.returnCheckStart = null;
+            // Only reset detection count if we've been away for a bit (more forgiving)
+            if (this.state.lastSeenTime && (now - this.state.lastSeenTime) > 1000) {
+                this.state.returnDetectionCount = Math.max(0, this.state.returnDetectionCount - 1);
+            }
 
             // Check if going away
             if (this.state.isPresent && this.state.lastSeenTime) {
